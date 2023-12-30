@@ -1,6 +1,15 @@
 # Godot Math Library
 
-Contains some useful tools for various functions in Godot.
+Contains some useful tools for various functions in Godot; please feel free to use in your projects. 
+
+# License
+
+GNU v3
+
+You do not need to credit me, but you should credit `Btan2` if you use the custom collision code per their request. 
+
+Original repositiory: 
+https://github.com/Btan2/Q_Move/tree/main
 
 
 # Usage
@@ -87,6 +96,4 @@ Has each flag A, B: false
 Some other misc. functions are included as well, documentation coming at some point
 
 
-Please feel free to use.
-CCD code inspired from btan2:
-https://github.com/Btan2/Q_Move/tree/main
+
