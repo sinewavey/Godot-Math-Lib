@@ -59,3 +59,8 @@ Has each flag: A, B [true, true]
 ```
 
 Some other misc. functions are included as well, documentation coming at some point
+
+
+Please feel free to use.
+CCD code inspired from btan2:
+https://github.com/Btan2/Q_Move/tree/main
