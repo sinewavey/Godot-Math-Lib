@@ -4,6 +4,9 @@ class Lib:
 	static func has_flag(flags: int, flag: int) -> bool:
 		return (flags & flag) != 0
 
+	static func has_all_flags(value: int, flags: int) -> bool:
+		return (value & flags) == flags
+
 	static func set_flag(flags: int, flag: int) -> int:
 		return flags | flag
 
@@ -13,29 +16,39 @@ class Lib:
 	static func toggle_flag(flags: int, flag: int) -> int:
 		return flags ^ flag
 
-	static func has_each_flag(value: int, flags: Array[int]) -> Array[bool]:
-		var _r: Array[bool]
-		for flag in flags:
-			_r.append(true if value & flag else false)
+	static func get_flags(value: int, n_flags: int) -> Array[bool]:
+		var _r := [] as Array[bool]
+		for i in n_flags:
+			_r.append(has_flag(value, 1 << i))
 		return _r
 
 
-	static func has_flags(value: int, flags: Array[int]) -> bool:
-		for flag: int in flags:
-			if value & flag:
-				return true
-		return false
+
+	# Angle and vector math
+
+	# yes i know this is redundant but hey forget about it ok i have my cursed little freak reasons
+	static func flat_vec3(vec: Vector3, with_slide: bool = false) -> Vector3:
+		return  vec.slide(Vector3.UP) if with_slide else Vector3(vec.x, 0, vec.z)
+
+	# TODO: define what order is besides ZX or signed_angle. Pseudo euler order
+	static func vec3ang(vec: Vector3, as_deg: bool = false, order: int = 0) -> float:
+		var _r: float = 0.0
+		match order:
+			0:
+				_r = vec2ang(Vector2(vec.z, vec.x), as_deg)
+			_:
+				_r = vec.signed_angle_to(Vector3.FORWARD, Vector3.UP)
+
+				if as_deg:
+					_r = rad_to_deg(_r)
+		return _r
 
 
-	static func get_flags(value: int, n_flags: int) -> Array[bool]:
-		var _a := [] as Array[bool]
+	static func vec2ang(vec: Vector2, as_deg: bool = false) -> float:
+		var _r := atan2(vec.x, vec.y)
+		return rad_to_deg(_r) if as_deg else _r
 
-		for i in n_flags:
-			_a.append(has_flag(value, 1 << i))
-
-		return _a
-
-	# Angle math
+	# TODO: make arbitrary angle calculation loop, to support N dimensional sectors, rather than 8 only
 	static func get_sector(angle: float) -> int:
 		if angle > 22.6 && angle <= 67.5:
 			return 1
@@ -60,6 +73,7 @@ class Lib:
 
 		return 0
 
+
 	static func get_sprite_dir(
 		sprite_xform: Transform3D,
 		target_xform: Transform3D,
@@ -82,33 +96,11 @@ class Lib:
 		return get_sector(angle)
 
 
-	static func flat_vec3(vec: Vector3) -> Vector3:
-		return Vector3(vec.x, 0, vec.z)
-
-
-	static func vec3ang(vec: Vector3, as_deg: bool = false, order: int = 0) -> float:
-		var _r: float = 0.0
-		match order:
-			0:
-				_r = vec2ang(Vector2(vec.z, vec.x), as_deg)
-			_:
-				_r = vec.signed_angle_to(Vector3.FORWARD, Vector3.UP)
-
-				if as_deg:
-					_r = rad_to_deg(_r)
-		return _r
-
-
-	static func vec2ang(vec: Vector2, as_deg: bool = false) -> float:
-		var _r := atan2(vec.x, vec.y)
-		return rad_to_deg(_r) if as_deg else _r
-
-
 	# custom ccd
 	static func get_shape_hull(_shape: Shape3D) -> AABB:
 		return _shape.get_debug_mesh().get_aabb()
 
-
+	# code below has roots from idTech3 and btan2's Q_Move for Godot 3.5
 	static func cast_trace(
 		what: CollisionObject3D, shape: Shape3D,
 		from: Vector3, to: Vector3) -> Math.Trace:
@@ -159,6 +151,7 @@ class Lib:
 		return fmod(x - y + range, range)
 
 
+# TODO: add surface flag data in player collision checks
 class Trace extends RefCounted:
 	var end_pos: Vector3
 	var fraction: float
