@@ -1,4 +1,12 @@
+# Godot Math Library
+
 Contains some useful tools for various functions in Godot.
+
+
+# Usage
+Put `math.gd` somewhere in your project. Usually this goes where your other autoload or singletons go, like `src/global`.
+
+Then, you can simply access functions with `Math.Lib` anywhere.
 
 Example usage:
 
