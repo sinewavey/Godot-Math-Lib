@@ -1,15 +1,13 @@
 # Godot Math Library
 
-Contains some useful tools for various functions in Godot; please feel free to use in your projects. 
+Some useful math and collision tools for various functions in Godot.
 
 # License
 
-GNU v3
+GNU GPL v3
 
 You do not need to credit me, but you should credit `Btan2` if you use the custom collision code per their request. 
-
-Original repositiory: 
-https://github.com/Btan2/Q_Move/tree/main
+See the original repositiory: https://github.com/Btan2/Q_Move/tree/main
 
 
 # Usage
@@ -17,10 +15,9 @@ Put `math.gd` somewhere in your project. Usually this goes where your other auto
 
 Then, you can simply access functions with `Math.Lib` anywhere.
 
-Example usage:
+Examples:
 
 ```
-
 func _ready() -> void:
 	var flag_a := 1 << 0
 	var flag_b := 1 << 2
@@ -62,35 +59,34 @@ func _ready() -> void:
 	prints("Has flag A", Math.Lib.has_flag(flag_test, flag_a))
 	prints("Has flag B", Math.Lib.has_flag(flag_test, flag_b))
 	prints("Has each flag A, B:", Math.Lib.has_all_flags(flag_test, flag_a + flag_b))
-```
 
-output:
-```
-Flags now: 0
-Get flags [false, false]
-Has flag A false
-Has flag B false
-Has each flag A, B: false
-Flags now: 1
-Get flags [true, false]
-Has flag A true
-Has flag B false
-Has each flag A, B: false
-Flags now: 5
-Get flags [true, false]
-Has flag A true
-Has flag B true
-Has each flag A, B: true
-Flags now: 4
-Get flags [false, false]
-Has flag A false
-Has flag B true
-Has each flag A, B: false
-Flags now: 0
-Get flags [false, false]
-Has flag A false
-Has flag B false
-Has each flag A, B: false
+
+# outputs:
+# Flags now: 0
+# Get flags [false, false]
+# Has flag A false
+# Has flag B false
+# Has each flag A, B: false
+# Flags now: 1
+# Get flags [true, false]
+# Has flag A true
+# Has flag B false
+# Has each flag A, B: false
+# Flags now: 5
+# Get flags [true, false]
+# Has flag A true
+# Has flag B true
+# Has each flag A, B: true
+# Flags now: 4
+# Get flags [false, false]
+# Has flag A false
+# Has flag B true
+# Has each flag A, B: false
+# Flags now: 0
+# Get flags [false, false]
+# Has flag A false
+# Has flag B false
+# Has each flag A, B: false
 ```
 
 Some other misc. functions are included as well, documentation coming at some point
