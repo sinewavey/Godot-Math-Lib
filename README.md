@@ -1,6 +1,6 @@
 # Godot Math Library
 
-Some useful math and collision tools for various functions in Godot.
+Some useful math and collision tools for various functions in Godot **4.2+** - I cannot guarantee every function will be available in prior versions though most *should* be.
 
 # License
 
