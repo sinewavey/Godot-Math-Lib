@@ -48,6 +48,7 @@ class Lib:
 		push_warning("Warning: Math.Lib.vec2ang was supplied with an invalid type. Valid types include Vector2/3 and Vector2i/3i.")
 		return _r
 
+	# cgaz angles refer to air strafing angles. google "campingaz hud defrag". if you do not know what "cgaz" means this function is not for you
 	static func get_cgaz_angles(vel: float, max: float, opt: float, min: float) -> Array[float]:
 		return [
 		vel - max, vel - 90.0, vel - opt, vel - min,
@@ -70,7 +71,7 @@ class Lib:
 					#_r = rad_to_deg(_r)
 		#return _r
 
-	# TODO: make arbitrary angle calculation loop, to support N dimensional sectors, rather than 8 only
+
 	static func get_sector(angle: float, sectors: int = 8) -> int:
 		if sectors <= 0:
 			return -1
@@ -85,7 +86,7 @@ class Lib:
 
 		return sector
 
-
+	# gets the sprite sector given the positions of both and an optional xz flattening
 	static func get_sprite_dir(
 		sprite_xform: Transform3D,
 		target_xform: Transform3D,
