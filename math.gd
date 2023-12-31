@@ -22,56 +22,68 @@ class Lib:
 			_r.append(has_flag(value, 1 << i))
 		return _r
 
-
-
 	# Angle and vector math
 
 	# yes i know this is redundant but hey forget about it ok i have my cursed little freak reasons
-	static func flat_vec3(vec: Vector3, with_slide: bool = false) -> Vector3:
+	static func get_vec3xz(vec: Vector3, with_slide: bool = false) -> Vector3:
 		return  vec.slide(Vector3.UP) if with_slide else Vector3(vec.x, 0, vec.z)
 
-	# TODO: define what order is besides ZX or signed_angle. Pseudo euler order
-	static func vec3ang(vec: Vector3, as_deg: bool = false, order: int = 0) -> float:
-		var _r: float = 0.0
-		match order:
-			0:
-				_r = vec2ang(Vector2(vec.z, vec.x), as_deg)
-			_:
-				_r = vec.signed_angle_to(Vector3.FORWARD, Vector3.UP)
+	static func get_vec3y(vec: Vector3) -> Vector3:
+		return Vector3(0, vec.y, 0)
 
-				if as_deg:
-					_r = rad_to_deg(_r)
+## TODO: define what order is besides ZX or signed_angle. Pseudo euler order
+	static func vec_to_angle(vec, as_deg: bool = false, order: int = 0) -> float:
+		var _r: float = NAN
+		if (vec is Vector2i || vec is Vector2):
+			_r = atan2(vec.y, vec.x)
+
+		elif (vec is Vector3 || vec is Vector3i):
+			match order:
+				0: _r = atan2(vec.z, vec.x)
+				_: _r = vec.signed_angle_to(Vector3.FORWARD, Vector3.UP)
+
+		if _r != NAN:
+			return rad_to_deg(_r) if as_deg else _r
+
+		push_warning("Warning: Math.Lib.vec2ang was supplied with an invalid type. Valid types include Vector2/3 and Vector2i/3i.")
 		return _r
 
+	static func get_cgaz_angles(vel: float, max: float, opt: float, min: float) -> Array[float]:
+		return [
+		vel - max, vel - 90.0, vel - opt, vel - min,
+		vel,
+		vel + min, vel + opt, vel + 90.0, vel + max,
+		] as Array[float]
 
-	static func vec2ang(vec: Vector2, as_deg: bool = false) -> float:
-		var _r := atan2(vec.x, vec.y)
-		return rad_to_deg(_r) if as_deg else _r
+	#static func vec2ang(vec: Vector2, as_deg: bool = false) -> float:
+		#var _r := atan2(vec.x, vec.y)
+		#return rad_to_deg(_r) if as_deg else _r
+	#static func vec3ang(vec: Vector3, as_deg: bool = false, order: int = 0) -> float:
+		#var _r := 0.0
+		#match order:
+			#0:
+				#_r = atan2(vec.z, vec.x)
+			#_:
+				#_r = vec.signed_angle_to(Vector3.FORWARD, Vector3.UP)
+#
+				#if as_deg:
+					#_r = rad_to_deg(_r)
+		#return _r
 
 	# TODO: make arbitrary angle calculation loop, to support N dimensional sectors, rather than 8 only
-	static func get_sector(angle: float) -> int:
-		if angle > 22.6 && angle <= 67.5:
-			return 1
+	static func get_sector(angle: float, sectors: int = 8) -> int:
+		if sectors <= 0:
+			return -1
+			push_warning("Invalid sector count request: %s" % sectors)
 
-		if angle > 67.6 && angle <= 112.5:
-			return 2
+		var sector_size: float = 360.0 / sectors
+		var sector := floori(angle / sector_size)
 
-		if angle > 112.6 && angle <= 157.5:
-			return 3
+		if angle > 360.0 || angle < 0.0:
+			angle = fmod(angle, 360.0)
+			sector = floori(angle / sector_size)
 
-		if angle > 157.6 && angle <= 202.5:
-			return 4
-
-		if angle > 202.6 && angle <= 247.5:
-			return 5
-
-		if angle > 247.6 && angle <= 292.5:
-			return 6
-
-		if angle > 292.3 && angle <= 337.5:
-			return 7
-
-		return 0
+		return sector
 
 
 	static func get_sprite_dir(
@@ -89,8 +101,8 @@ class Lib:
 			look_dir.y = 0
 
 		# get the sector angles by arctan then lock to 0 < x < 360.0
-		var pos := vec3ang(from - to, true)
-		var basis := vec3ang(from - look_dir, true)
+		var pos := vec_to_angle(from - to, true)
+		var basis := vec_to_angle(from - look_dir, true)
 		var angle := wrap_fmod(pos, basis, 360.0)
 
 		return get_sector(angle)
