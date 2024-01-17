@@ -1,5 +1,7 @@
 class_name StepSlideChar3D extends Node3D
 
+## hey, this is a motion controller. it's not an *actual* physics body 3d, but the two are so tightly married i like to split this out into its own little thing that can even have a rotating transform (while the player itself is axial rotation locked)
+
 const MAX_CLIP_PLANES: int = 5
 
 enum Event {
