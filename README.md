@@ -2,11 +2,13 @@
 
 Some useful math and collision tools for various functions in Godot **4.2+** - I cannot guarantee every function will be available in prior versions though most *should* be.
 
+Also included is an in-progress 3D character motion controller with stair stepping and ramp sliding. It's not complete, but works fairly well, and you might get an idea of how to go forward with your own. It's heavily based off of `btan2`'s Q_Move code. See below.
+
 # License
 
 GNU GPL v3
 
-You do not need to credit me, but you should credit `Btan2` if you use the custom collision code per their request. 
+You do not need to credit me, but you should credit `Btan2` if you use the custom collision code per their request.
 See the original repositiory: https://github.com/Btan2/Q_Move/tree/main
 
 
