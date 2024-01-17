@@ -32,6 +32,7 @@ class Lib:
 		return Vector3(0, vec.y, 0)
 
 ## TODO: define what order is besides ZX or signed_angle. Pseudo euler order
+	@warning_ignore("untyped_declaration")
 	static func vec_to_angle(vec, as_deg: bool = false, order: int = 0) -> float:
 		var _r: float = NAN
 		if (vec is Vector2i || vec is Vector2):
@@ -48,7 +49,7 @@ class Lib:
 		push_warning("Warning: Math.Lib.vec2ang was supplied with an invalid type. Valid types include Vector2/3 and Vector2i/3i.")
 		return _r
 
-	# cgaz angles refer to air strafing angles. google "campingaz hud defrag". if you do not know what "cgaz" means this function is not for you
+	@warning_ignore("shadowed_global_identifier")
 	static func get_cgaz_angles(vel: float, max: float, opt: float, min: float) -> Array[float]:
 		return [
 		vel - max, vel - 90.0, vel - opt, vel - min,
@@ -71,11 +72,11 @@ class Lib:
 					#_r = rad_to_deg(_r)
 		#return _r
 
-
+	# TODO: make arbitrary angle calculation loop, to support N dimensional sectors, rather than 8 only
 	static func get_sector(angle: float, sectors: int = 8) -> int:
 		if sectors <= 0:
-			return -1
 			push_warning("Invalid sector count request: %s" % sectors)
+			return -1
 
 		var sector_size: float = 360.0 / sectors
 		var sector := floori(angle / sector_size)
@@ -86,7 +87,7 @@ class Lib:
 
 		return sector
 
-	# gets the sprite sector given the positions of both and an optional xz flattening
+
 	static func get_sprite_dir(
 		sprite_xform: Transform3D,
 		target_xform: Transform3D,
@@ -118,7 +119,7 @@ class Lib:
 		what: CollisionObject3D, shape: Shape3D,
 		from: Vector3, to: Vector3) -> Math.Trace:
 
-		var collided: bool = false
+		var _collided: bool = false
 		var motion := to - from
 
 		var params := PhysicsShapeQueryParameters3D.new()
@@ -132,8 +133,10 @@ class Lib:
 		var results := space_state.cast_motion(params)
 
 		if results[0] == 1.0:
-			collided = false
+			_collided = false
 			return Math.Trace.new(to)
+
+		_collided = true
 
 		var end_pos := from + motion * results[1]
 
@@ -146,7 +149,7 @@ class Lib:
 
 
 	# misc funcs
-	static func _short_path(path: String, delim: String, pad: int = 0) -> String:
+	static func short_path(path: String, delim: String, pad: int = 0) -> String:
 		var split := path.split(delim)
 		var _r: String = ""
 
@@ -158,6 +161,18 @@ class Lib:
 				_r += " "
 
 		return _r
+
+	# TODO - less intense version of caminfo, more specific calls for actual things like FOV etc vs collision points!
+	static func get_cam_info(viewport: Viewport, excludes: Array[CollisionObject3D] = [null], layers: int = 0xFFFFFFFF) -> CamInfo:
+		return CamInfo.new(viewport, layers, excludes)
+
+
+	static func get_dir() -> String:
+		if Engine.is_editor_hint() || OS.has_feature("editor"):
+			return "res:/"
+
+		else:
+			return OS.get_executable_path().get_base_dir()
 
 	@warning_ignore("shadowed_global_identifier")
 	static func wrap_fmod(x: float, y: float, range: float) -> float:
@@ -176,4 +191,77 @@ class Trace extends RefCounted:
 		self.end_pos = end_pos
 		self.fraction = fraction
 		self.normal = normal
+		return
+
+class CamInfo extends RefCounted:
+	var cam_3d: Camera3D
+	var projection: Projection
+	var fov_x: float
+	var fov_y: float
+	var aspect: float
+	var screen_size: Vector2
+	var world_3d: World3D
+
+	var ray_origin: Vector3
+	var ray_end: Vector3
+
+	var viewport: Viewport:
+		set(v):
+			viewport = v
+			cam_3d = v.get_camera_3d()
+			world_3d = cam_3d.get_world_3d()
+			projection = cam_3d.get_camera_projection()
+			fov_x = projection.get_fov()
+			aspect = projection.get_aspect()
+
+			if v is SubViewport:
+				screen_size = (v as SubViewport).size
+
+			else:
+				screen_size = Vector2i(
+					ProjectSettings.get_setting("size/viewport_width"),
+					ProjectSettings.get_setting("size/viewport_height")
+					)
+
+			ray_origin = cam_3d.project_ray_origin(screen_size / 2)
+			ray_end = ray_origin + cam_3d.project_ray_normal(screen_size / 2) * 1000
+
+	var params: PhysicsRayQueryParameters3D
+
+	var collided: bool = false
+	var collider: Node = null
+
+	var collision_point: Vector3
+	var collision_normal: Vector3
+
+	func _init(v: Viewport, layers: int = 0xFFFFFFFF, excludes: Array[CollisionObject3D] = [null]) -> void:
+		viewport = v
+
+		var exc: Array[RID] = []
+
+		for node in excludes:
+			if node:
+				exc.append(node.get_rid())
+
+		params = PhysicsRayQueryParameters3D.create(
+			ray_origin,
+			ray_end,
+			layers,
+			exc
+		)
+
+		var results := world_3d.direct_space_state.intersect_ray(params)
+
+		if !results.is_empty():
+			collided = true
+			collider = results.collider
+			collision_point = results.position
+			collision_normal = results.normal
+
+		else:
+			collided = false
+			collider = null
+			collision_point = ray_end
+			collision_normal = (ray_end - ray_origin).normalized()
+
 		return
